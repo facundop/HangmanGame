@@ -17,10 +17,10 @@ public class HangmanGame {
 
 	public static void main(String[] args) {
 		HangmanGame game = new HangmanGame();
-		game.run();
+		game.play();
 	}
 
-	private void run() {
+	private void play() {
 		input = new Scanner(System.in);
 		playerName = getPlayerName(input);
 		wordToGuess = getRandomWordToGuess();
@@ -30,7 +30,10 @@ public class HangmanGame {
 		lettersGuessed = new HashSet<Character>();
 		lettersWrong = new HashSet<Character>();
 
-		fillLettersToGuess();
+		// Fill lettersToGuess (We use this to compare the letters picked
+		for (Character c : wordToGuess.toCharArray()) {
+			lettersToGuess.add(c);
+		}
 		// Put first and last letter into lettersGuessed set.
 		lettersGuessed.add(wordToGuess.charAt(0));
 		lettersGuessed.add(wordToGuess.charAt(wordToGuess.length() - 1));
@@ -42,16 +45,19 @@ public class HangmanGame {
 			System.out.println(playerName + ", guess a letter!");
 			showWrongLetters();
 			pickLetter();
-			if (isLetterInWord(letter, lettersToGuess)) {
-				addLetterToLettersGuessed(letter, lettersGuessed);
+			if (lettersToGuess.contains(letter)) {
+				lettersGuessed.add(letter);
 			} else {
-				wrongLetter(letter, lettersWrong);
-				lifeLost();
+				lettersWrong.add(letter);
+				lives--;
 				System.out.println("Your letter is not in the word.");
 				System.out.println("Lives remaining: " + lives);
 			}
 			showWordToGuess(wordToGuess, lettersGuessed);
-			if (isGameOver()) {
+
+			// Check to see if the game is over (either win or lose)
+			if ((lives == 0)
+					|| (lettersGuessed.size() == lettersToGuess.size())) {
 				gameIsRunning = false;
 				System.out.println("You " + ((lives == 0) ? "lost!" : "won!"));
 			}
@@ -109,45 +115,6 @@ public class HangmanGame {
 	}
 
 	/*
-	 * Checks if the letter guessed is in the lettersToGuess.
-	 */
-	private boolean isLetterInWord(char letter, Set<Character> lettersToGuess) {
-		return lettersToGuess.contains(letter);
-	}
-
-	/*
-	 * Adds the guessed letter to the set that contains the guessed letters.
-	 */
-	private void addLetterToLettersGuessed(char letter,
-			Set<Character> lettersGuessed) {
-		lettersGuessed.add(letter);
-	}
-
-	/*
-	 * Adds the wrong letter to the set that contains wrong letters.
-	 */
-	private void wrongLetter(char letter, Set<Character> lettersWrong) {
-		lettersWrong.add(letter);
-	}
-
-	/*
-	 * We lose 1 life per wrong letter. We will use this method to handle the
-	 * draw to display.
-	 */
-	private void lifeLost() {
-		lives--;
-	}
-
-	/*
-	 * Fills lettersToGuess from wordToGuess
-	 */
-	private void fillLettersToGuess() {
-		for (Character c : wordToGuess.toCharArray()) {
-			lettersToGuess.add(c);
-		}
-	}
-
-	/*
 	 * Show Hangman state. To do: draw hangman in his 5 stages.
 	 */
 	private void showHangmanState() {
@@ -158,13 +125,6 @@ public class HangmanGame {
 		System.out.println("+++++Hangman draw goes here.+++++");
 		System.out.println("+++++++++++++++++++++++++++++++++");
 		System.out.println("Word to guess:");
-	}
-
-	/*
-	 * We check if the game is over (win or lose)
-	 */
-	private boolean isGameOver() {
-		return ((lives == 0) || (lettersGuessed.size() == lettersToGuess.size()));
 	}
 
 	/*
